@@ -222,28 +222,46 @@ class APIMod(TypedDict):
 
 @dataclass
 class LegacyReplaySoloScoreInfo:
-    online_id: int
-    mods: list[APIMod]
-    statistics: Statistics
-    maximum_statistics: Statistics
-    client_version: str
-    rank: Literal["F", "D", "C", "B", "A", "S", "S+", "SS", "SS+"]
-    user_id: int
-    total_score_without_mods: int
+    online_id: int = 0
+    mods: list[APIMod] = None
+    statistics: Statistics = None
+    maximum_statistics: Statistics = None
+    client_version: str = ""
+    rank: Literal["F", "D", "C", "B", "A", "S", "S+", "SS", "SS+"] = "F"
+    user_id: int = 0
+    total_score_without_mods: int = 0
+    
+    def __post_init__(self):
+        if self.mods is None:
+            self.mods = []
+        if self.statistics is None:
+            self.statistics = {}
+        if self.maximum_statistics is None:
+            self.maximum_statistics = {}
 
     @classmethod
     def from_json_string(cls, json_string : str):
         json_dict = json.loads(json_string)
-        return cls(
-            online_id=json_dict["online_id"],
-            mods=json_dict["mods"],
-            statistics=json_dict["statistics"],
-            maximum_statistics=json_dict["maximum_statistics"],
-            client_version=json_dict["client_version"],
-            rank=json_dict["rank"],
-            user_id=json_dict["user_id"],
-            total_score_without_mods=json_dict["total_score_without_mods"],
-        )
+        kwargs = {}
+        
+        if "online_id" in json_dict:
+            kwargs["online_id"] = json_dict["online_id"]
+        if "mods" in json_dict:
+            kwargs["mods"] = json_dict["mods"]
+        if "statistics" in json_dict:
+            kwargs["statistics"] = json_dict["statistics"]
+        if "maximum_statistics" in json_dict:
+            kwargs["maximum_statistics"] = json_dict["maximum_statistics"]
+        if "client_version" in json_dict:
+            kwargs["client_version"] = json_dict["client_version"]
+        if "rank" in json_dict:
+            kwargs["rank"] = json_dict["rank"]
+        if "user_id" in json_dict:
+            kwargs["user_id"] = json_dict["user_id"]
+        if "total_score_without_mods" in json_dict:
+            kwargs["total_score_without_mods"] = json_dict["total_score_without_mods"]
+            
+        return cls(**kwargs)
     
     def to_json_string(self):
         return json.dumps(
